@@ -1,0 +1,1 @@
+web: gunicorn ppi_admin.wsgi
