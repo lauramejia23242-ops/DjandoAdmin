@@ -76,23 +76,29 @@ WSGI_APPLICATION = 'ppi_admin.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 import os
-import dj_database_url # Importación necesaria
+import dj_database_url 
 
-# Leer la variable de entorno DATABASE_URL
-DATABASE_URL = os.environ.get('DATABASE_URL')
+# ----------------------------------------------
+# CONFIGURACIÓN DE BASE DE DATOS FINAL
+# ----------------------------------------------
+# Railway expone la URL completa de la DB en una sola variable.
+# Usamos 'MYSQL_URL' como el nombre de la variable.
+DATABASE_URL = os.environ.get('MYSQL_URL')
 
 if DATABASE_URL:
-    # Si la variable de entorno existe (estamos en Railway), usar la DB de producción
+    # Conexión de Producción (RAILWAY)
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
-            # Forzar el motor a MySQL para producción
             engine='django.db.backends.mysql' 
         )
     }
+    # Esto asegura que no intente usar el socket local (error 2002)
+    DATABASES['default'].pop('unix_socket', None) 
+    
 else:
-    # Usar la configuración local de MySQL (localhost)
+    # Conexión Local (Desarrollo/fallback)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
