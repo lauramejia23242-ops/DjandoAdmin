@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)z$+@!sytkls%y1!l1s)*l#rr+y7(a%924%5a^r%rf8mx#%z22'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -75,16 +75,34 @@ WSGI_APPLICATION = 'ppi_admin.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ppi',
-        'USER': 'root',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
-        'PORT': '3306',
+import os
+import dj_database_url # Importación necesaria
+
+# Leer la variable de entorno DATABASE_URL
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Si la variable de entorno existe (estamos en Railway), usar la DB de producción
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            # Forzar el motor a MySQL para producción
+            engine='django.db.backends.mysql' 
+        )
     }
-}
+else:
+    # Usar la configuración local de MySQL (localhost)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'ppi',
+            'USER': 'root',
+            'PASSWORD': '12345',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 
 
 # Password validation
